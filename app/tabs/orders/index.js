@@ -8,7 +8,7 @@ import {
   ScrollView,
   Modal,
 } from "react-native";
-import { getDocs, collection, query, onSnapshot } from "firebase/firestore";
+import { collection, query, onSnapshot } from "firebase/firestore";
 import { auth, db } from "../../../firebase";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";

@@ -14,7 +14,7 @@ import { auth, db } from "../../../firebase";
 import { addDoc, collection } from "firebase/firestore";
 import { useRouter } from "expo-router";
 
-const Add = () => {
+const add = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   const [mobile, setMobile] = useState("");
@@ -261,4 +261,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Add;
+export default add;

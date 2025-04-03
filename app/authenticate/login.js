@@ -19,7 +19,7 @@ import { auth, db } from "../../firebase";
 import { doc, updateDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Login = () => {
+const login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -239,4 +239,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Login;
+export default login;

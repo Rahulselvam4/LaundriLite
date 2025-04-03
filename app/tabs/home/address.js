@@ -28,7 +28,7 @@ import { auth, db } from "../../../firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { cleanCart } from "../../../redux/CartReducer";
 
-const Address = () => {
+const address = () => {
   const userUid = auth?.currentUser.uid;
   const router = useRouter();
   const dispatch = useDispatch();
@@ -1101,6 +1101,6 @@ const Address = () => {
   );
 };
 
-export default Address;
+export default address;
 
 const styles = StyleSheet.create({});

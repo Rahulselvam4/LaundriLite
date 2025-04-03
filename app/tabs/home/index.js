@@ -17,7 +17,7 @@ import Octicons from "@expo/vector-icons/Octicons";
 import { Ionicons, MaterialCommunityIcons, Entypo } from "@expo/vector-icons";
 import SwiperView from "./SwiperView.js";
 
-const Index = () => {
+const index = () => {
   const router = useRouter();
   const [userName, setUserName] = useState("");
   const [helpModalVisible, setHelpModalVisible] = useState(false);
@@ -232,7 +232,7 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default index;
 
 // Styles
 const styles = StyleSheet.create({

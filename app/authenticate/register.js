@@ -21,7 +21,7 @@ import { doc, setDoc } from "firebase/firestore";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Fontisto } from "@expo/vector-icons";
 
-const Register = () => {
+const register = () => {
   const [name, setName] = useState(""); // ✅ Add name state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -227,7 +227,7 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default register;
 
 const styles = StyleSheet.create({
   button: {
