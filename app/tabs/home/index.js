@@ -127,14 +127,30 @@ const index = () => {
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Quick Help</Text>
-            <Text style={styles.modalText}>
-              <Ionicons name="mail-outline" size={20} color="black" /> Email:
-              support@laundryapp.com
-            </Text>
-            <Text style={styles.modalText}>
-              <Ionicons name="call-outline" size={20} color="black" /> Contact:
-              +91 98765 43210
-            </Text>
+
+            {/* Email Row */}
+            <View style={[styles.modalTextRow]}>
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color="black"
+                style={styles.iconStyle}
+              />
+              <Text style={styles.modalText}>
+                Email: support@laundryapp.com
+              </Text>
+            </View>
+
+            {/* Contact Row */}
+            <View style={[styles.modalTextRow]}>
+              <Ionicons
+                name="call-outline"
+                size={20}
+                color="black"
+                style={styles.iconStyle}
+              />
+              <Text style={styles.modalText}>Contact: +91 98765 43210</Text>
+            </View>
 
             <Pressable
               onPress={() => setHelpModalVisible(false)}
@@ -368,5 +384,19 @@ const styles = StyleSheet.create({
   closeText: {
     color: "black",
     fontSize: 14,
+  },
+  modalTextRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 6,
+  },
+
+  iconStyle: {
+    marginRight: 8,
+  },
+
+  modalText: {
+    fontSize: 16,
+    color: "#444",
   },
 });

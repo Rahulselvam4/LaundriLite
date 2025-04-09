@@ -56,7 +56,14 @@ const index = () => {
   const generatePDF = async () => {
     if (!selectedOrder) return;
 
-    const { address, pickupDate, pickuptime, deliveryDate, deliveryTime, totalPayable } = selectedOrder;
+    const {
+      address,
+      pickupDate,
+      pickuptime,
+      deliveryDate,
+      deliveryTime,
+      totalPayable,
+    } = selectedOrder;
 
     console.log("Address Data:", address);
 
@@ -64,18 +71,21 @@ const index = () => {
     const mobile = address?.mobile ?? "N/A";
 
     const addressParts = [
-      address?.houseNo, 
-      address?.landmark, 
-      address?.city, 
-      address?.postalCode
+      address?.houseNo,
+      address?.landmark,
+      address?.city,
+      address?.postalCode,
     ].filter(Boolean);
 
-    const formattedAddress = addressParts.length > 0 ? addressParts.join(", ") : "N/A";
+    const formattedAddress =
+      addressParts.length > 0 ? addressParts.join(", ") : "N/A";
 
     const htmlContent = `
       <html>
-        <body style="font-family: Arial, sans-serif; padding: 20px;">
+        <body style="font-family: Arial, sans-serif; padding: 30px;">
           <h2 style="text-align: center;">Order Summary</h2>
+          <div style= "padding: 20px;">
+          <p><strong>Order ID:</strong> ${selectedOrder.id}</p>
           <p><strong>Name:</strong> ${name}</p>
           <p><strong>Mobile:</strong> ${mobile}</p>
           <p><strong>Address:</strong> ${formattedAddress}</p>
@@ -84,6 +94,7 @@ const index = () => {
           <p><strong>Delivery Date:</strong> ${deliveryDate}</p>
           <p><strong>Delivery Time:</strong> ${deliveryTime}</p>
           <p><strong>Order Total:</strong> ₹${totalPayable || "0.00"}</p>
+          </div>
         </body>
       </html>
     `;
@@ -101,14 +112,22 @@ const index = () => {
             style={{ width: 240, height: 60, resizeMode: "cover" }}
             source={require("../../../assets/logo_final.png")}
           />
-          <View style={{ flexDirection: "row", alignItems: "center", marginTop: 12 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              marginTop: 12,
+            }}
+          >
             <Ionicons
               onPress={() => router.push("/tabs/home")}
               name="arrow-back"
               size={24}
               color="black"
             />
-            <Text style={{ fontSize: 17, fontWeight: "500", marginLeft: 10 }}>My Orders</Text>
+            <Text style={{ fontSize: 17, fontWeight: "500", marginLeft: 10 }}>
+              My Orders
+            </Text>
           </View>
         </View>
       </View>
@@ -149,14 +168,24 @@ const index = () => {
               {/* Display Total Payable */}
               <View style={{ flexDirection: "row", marginTop: 10 }}>
                 <Text style={styles.sectionTitle}>Total Payable:</Text>
-                <Text style={styles.value}> ₹ {order.totalPayable.toFixed(2)}</Text>
+                <Text style={styles.value}>
+                  {" "}
+                  ₹ {order.totalPayable.toFixed(2)}
+                </Text>
               </View>
             </View>
 
             {/* Order Summary Button */}
             <View style={styles.orderActions}>
-              <Pressable onPress={() => openOrderSummary(order)} style={styles.summaryButton}>
-                <MaterialCommunityIcons name="note-outline" size={24} color="black" />
+              <Pressable
+                onPress={() => openOrderSummary(order)}
+                style={styles.summaryButton}
+              >
+                <MaterialCommunityIcons
+                  name="note-outline"
+                  size={24}
+                  color="black"
+                />
                 <Text style={styles.actionText}>Order Summary</Text>
               </Pressable>
             </View>
@@ -169,15 +198,36 @@ const index = () => {
         <Modal visible={modalVisible} animationType="slide" transparent={true}>
           <View style={styles.modalBackground}>
             <View style={styles.modalContainer}>
-              <Pressable onPress={() => setModalVisible(false)} style={styles.closeButton}>
+              <Pressable
+                onPress={() => setModalVisible(false)}
+                style={styles.closeButton}
+              >
                 <Ionicons name="close" size={24} color="black" />
               </Pressable>
               <Text style={styles.modalTitle}>Order Summary</Text>
-              <Text style={styles.modalText}><Text style={styles.bold}>Pickup Date:</Text> {selectedOrder.pickupDate}</Text>
-              <Text style={styles.modalText}><Text style={styles.bold}>Pickup Time:</Text> {selectedOrder.pickuptime}</Text>
-              <Text style={styles.modalText}><Text style={styles.bold}>Delivery Date:</Text> {selectedOrder.deliveryDate}</Text>
-              <Text style={styles.modalText}><Text style={styles.bold}>Delivery Time:</Text> {selectedOrder.deliveryTime}</Text>
-              <Text style={styles.modalText}><Text style={styles.bold}>Total Payable:</Text> ₹ {selectedOrder.totalPayable.toFixed(2)}</Text>
+              <Text style={styles.modalText}>
+                <Text style={styles.bold}>Order ID:</Text> {selectedOrder.id}
+              </Text>
+              <Text style={styles.modalText}>
+                <Text style={styles.bold}>Pickup Date:</Text>{" "}
+                {selectedOrder.pickupDate}
+              </Text>
+              <Text style={styles.modalText}>
+                <Text style={styles.bold}>Pickup Time:</Text>{" "}
+                {selectedOrder.pickuptime}
+              </Text>
+              <Text style={styles.modalText}>
+                <Text style={styles.bold}>Delivery Date:</Text>{" "}
+                {selectedOrder.deliveryDate}
+              </Text>
+              <Text style={styles.modalText}>
+                <Text style={styles.bold}>Delivery Time:</Text>{" "}
+                {selectedOrder.deliveryTime}
+              </Text>
+              <Text style={styles.modalText}>
+                <Text style={styles.bold}>Total Payable:</Text> ₹{" "}
+                {selectedOrder.totalPayable.toFixed(2)}
+              </Text>
 
               <Pressable style={styles.downloadButton} onPress={generatePDF}>
                 <Text style={styles.downloadText}>Share</Text>
@@ -191,8 +241,6 @@ const index = () => {
 };
 
 export default index;
-
-
 
 const styles = StyleSheet.create({
   orderContainer: {
@@ -269,7 +317,7 @@ const styles = StyleSheet.create({
   orderActions: {
     alignItems: "flex-end",
     marginTop: 10,
-    paddingBottom:10,
+    paddingBottom: 10,
   },
   summaryButton: {
     flexDirection: "row",
@@ -281,5 +329,10 @@ const styles = StyleSheet.create({
     color: "#5C67F2",
     fontWeight: "bold",
   },
+  sectionTitle: {
+    fontWeight: "bold",
+  },
+  label: {
+    fontWeight: "bold",
+  },
 });
-
