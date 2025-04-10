@@ -28,7 +28,7 @@ import { auth, db } from "../../../firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { cleanCart } from "../../../redux/CartReducer";
 import * as Notifications from "expo-notifications";
-// Configure notifications (if not already done elsewhere in the app)
+
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -36,9 +36,6 @@ Notifications.setNotificationHandler({
     shouldSetBadge: true,
   }),
 });
-// import { getAuth } from "firebase/auth";
-
-// import sendConfirmationEmail from "../../utils/emailService";
 
 const Address = () => {
   const userUid = auth?.currentUser.uid;
@@ -106,29 +103,6 @@ const Address = () => {
     });
   };
  
-  // const sendOrderConfirmationSMS = async (phoneNumber, orderId) => {
-  //   try {
-  //     // For security reasons, you should not put these credentials in client-side code
-  //     // This is a simplified example - in production, use Firebase Cloud Functions
-  //     const accountSid = 'AC9cc1657104b29d922bf91bec22cb6701';
-  //     const authToken = 'ee8b8a33f674e398697cac3d76fcf26e';
-  //     const twilioNumber = '+19794645889';
-
-  //     const client = new Twilio(accountSid, authToken);
-
-  //     const message = await client.messages.create({
-  //       body: `Your order #${orderId.slice(-6)} has been placed successfully. Thank you for using our service!`,
-  //       from: twilioNumber,
-  //       to: phoneNumber
-  //     });
-
-  //     console.log("SMS sent with SID:", message.sid);
-  //     return true;
-  //   } catch (error) {
-  //     console.error("Failed to send SMS:", error);
-  //     return false;
-  //   }
-  // };
   const sendOrderConfirmationSMS = async (phoneNumber, orderId ,total) => {
     try {
       const response = await fetch("http://10.16.52.208:5000/send-order-confirmation", {
