@@ -27,6 +27,15 @@ import {
 import { auth, db } from "../../../firebase";
 import { useDispatch, useSelector } from "react-redux";
 import { cleanCart } from "../../../redux/CartReducer";
+import * as Notifications from "expo-notifications";
+// Configure notifications (if not already done elsewhere in the app)
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 // import { getAuth } from "firebase/auth";
 
 // import sendConfirmationEmail from "../../utils/emailService";
@@ -96,40 +105,51 @@ const Address = () => {
       return nextStep;
     });
   };
-  // const placeOrder = async () => {
+ 
+  // const sendOrderConfirmationSMS = async (phoneNumber, orderId) => {
   //   try {
-  //     const orderRef = await saveOrderToDB(); // assumes this returns an order ID or reference
+  //     // For security reasons, you should not put these credentials in client-side code
+  //     // This is a simplified example - in production, use Firebase Cloud Functions
+  //     const accountSid = 'AC9cc1657104b29d922bf91bec22cb6701';
+  //     const authToken = 'ee8b8a33f674e398697cac3d76fcf26e';
+  //     const twilioNumber = '+19794645889';
 
-  //     const auth = getAuth();
-  //     const currentUser = auth.currentUser;
-  //     const userEmail = currentUser?.email;
+  //     const client = new Twilio(accountSid, authToken);
 
-  //     if (userEmail) {
-  //       await sendConfirmationEmail(userEmail, {
-  //         id: orderRef.id,
-  //         pickupDate: selectedDate.format("YYYY-MM-DD"),
-  //         deliveryDate: deliveryDate.format("YYYY-MM-DD"),
-  //       });
-  //     }
+  //     const message = await client.messages.create({
+  //       body: `Your order #${orderId.slice(-6)} has been placed successfully. Thank you for using our service!`,
+  //       from: twilioNumber,
+  //       to: phoneNumber
+  //     });
 
-  //     // Slight delay to make sure async ops finish smoothly
-  //     await new Promise((resolve) => setTimeout(resolve, 100));
-
-  //     Alert.alert("Order Placed", "Your order was successful!", [
-  //       {
-  //         text: "OK",
-  //         onPress: () => {
-  //           dispatch(cleanCart());
-  //           router.replace("/tabs/orders");
-  //         },
-  //       },
-  //     ]);
+  //     console.log("SMS sent with SID:", message.sid);
+  //     return true;
   //   } catch (error) {
-  //     console.error("Order error:", error);
-  //     Alert.alert("Error", "Order failed. Please try again.");
+  //     console.error("Failed to send SMS:", error);
+  //     return false;
   //   }
   // };
-
+  const sendOrderConfirmationSMS = async (phoneNumber, orderId ,total) => {
+    try {
+      const response = await fetch("http://10.16.52.208:5000/send-order-confirmation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ phoneNumber, orderId, total }),
+      });
+  
+      const result = await response.json();
+      if (result.success) {
+        console.log("SMS sent with SID:", result.sid);
+      } else {
+        console.error("SMS sending failed:", result.error);
+      }
+    } catch (error) {
+      console.error("Failed to send SMS:", error.message);
+    }
+  };
+  
   const placeOrder = async () => {
     // Debugging checkpoint 1
     console.log("1. Starting placeOrder");
@@ -138,11 +158,54 @@ const Address = () => {
       // Debugging checkpoint 2
       console.log("2. Attempting to save to DB");
 
-      await saveOrderToDB();
+      const orderRef = await saveOrderToDB();
 
       // Debugging checkpoint 3
       console.log("3. DB save successful, showing alert");
 
+      // Send order confirmation notification
+      try {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: "Order Placed Successfully!",
+            body: `Your order #${orderRef.id.slice(-6)} has been placed. Total: $${parseFloat(
+              (
+                total +
+                parseFloat(selectedScent || 0) -
+                discount +
+                25 + // Delivery
+                150
+              ).toFixed(2) // Taxes
+            )}`,
+            data: { screen: "orders", orderId: orderRef.id },
+          },
+          trigger: null, // null means send immediately
+        });
+        console.log("3.1 Order notification sent");
+      } catch (error) {
+        console.error("Failed to send notification:", error);
+        // Continue with order process even if notification fails
+      }
+      // Send SMS if there's a phone number
+      if (selectedAddress && selectedAddress.mobile) {
+        try {
+          await sendOrderConfirmationSMS(
+            selectedAddress.mobile,
+            orderRef.id,
+            (
+              total +
+              parseFloat(selectedScent || 0) -
+              discount +
+              25 + // Delivery
+              150   // Taxes
+            ).toFixed(2)
+          );
+          console.log("3.2 Order confirmation SMS sent");
+        } catch (smsError) {
+          console.error("Failed to send SMS:", smsError);
+          // Continue with order process even if SMS fails
+        }
+      }
       // Force UI thread to settle before showing alert
       await new Promise((resolve) => setTimeout(resolve, 100));
 
@@ -355,8 +418,8 @@ const Address = () => {
               borderRadius: 5,
               backgroundColor:
                 selectedTime &&
-                selectedTime.startTime === option.startTime &&
-                selectedTime.endTime === option.endTime
+                  selectedTime.startTime === option.startTime &&
+                  selectedTime.endTime === option.endTime
                   ? "#0066b2"
                   : "white",
             }}
@@ -366,8 +429,8 @@ const Address = () => {
                 textAlign: "center",
                 color:
                   selectedTime &&
-                  selectedTime.startTime === option.startTime &&
-                  selectedTime.endTime === option.endTime
+                    selectedTime.startTime === option.startTime &&
+                    selectedTime.endTime === option.endTime
                     ? "white"
                     : "black",
               }}
@@ -398,8 +461,8 @@ const Address = () => {
             borderRadius: 5,
             backgroundColor:
               selectedDeliveryTime &&
-              selectedDeliveryTime.startTime === option.startTime &&
-              selectedDeliveryTime.endTime === option.endTime
+                selectedDeliveryTime.startTime === option.startTime &&
+                selectedDeliveryTime.endTime === option.endTime
                 ? "#0066b2"
                 : "white",
           }}
@@ -409,8 +472,8 @@ const Address = () => {
               textAlign: "center",
               color:
                 selectedDeliveryTime &&
-                selectedDeliveryTime.startTime === option.startTime &&
-                selectedDeliveryTime.endTime === option.endTime
+                  selectedDeliveryTime.startTime === option.startTime &&
+                  selectedDeliveryTime.endTime === option.endTime
                   ? "white"
                   : "black",
             }}

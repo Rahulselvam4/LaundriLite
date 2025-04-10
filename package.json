@@ -14,9 +14,11 @@
     "@react-native-picker/picker": "^2.9.0",
     "@reduxjs/toolkit": "^2.5.1",
     "expo": "~52.0.42",
-    "expo-constants": "^17.0.8",
+    "expo-constants": "~17.0.8",
+    "expo-device": "~7.0.3",
     "expo-linking": "~7.0.5",
     "expo-location": "~18.0.10",
+    "expo-notifications": "~0.29.14",
     "expo-print": "~14.0.3",
     "expo-router": "~4.0.20",
     "expo-sharing": "~13.0.1",
@@ -38,7 +40,8 @@
     "react-native-svg": "15.8.0",
     "react-native-swiper": "^1.6.0",
     "react-native-web": "~0.19.13",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "twilio": "^5.5.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

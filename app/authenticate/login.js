@@ -9,6 +9,7 @@ import {
   Pressable,
   Alert,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import React, { useState, useEffect } from "react";
 import Fontisto from "@expo/vector-icons/Fontisto";
@@ -16,8 +17,20 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { auth, db } from "../../firebase";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, setDoc } from "firebase/firestore";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
+import Constants from "expo-constants";
+
+// Configure notifications
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
 
 const login = () => {
   const [email, setEmail] = useState("");
@@ -49,6 +62,82 @@ const login = () => {
     }
   }, [userLoggedIn]);
 
+  // Function to register for push notifications
+  const registerForPushNotificationsAsync = async (userId) => {
+    let token;
+
+    if (!Device.isDevice) {
+      Alert.alert("Notice", "Push notifications require a physical device");
+      return null;
+    }
+
+    try {
+      // Check and request permissions
+      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      
+      if (finalStatus !== 'granted') {
+        console.log("Failed to get push notification permissions");
+        return null;
+      }
+
+      // Get the token
+      token = (await Notifications.getExpoPushTokenAsync({
+        projectId: Constants.expoConfig?.extra?.eas?.projectId,
+      })).data;
+      
+      console.log("Push notification token:", token);
+
+      // For Android, create a notification channel
+      if (Platform.OS === 'android') {
+        Notifications.setNotificationChannelAsync('default', {
+          name: 'Default',
+          importance: Notifications.AndroidImportance.MAX,
+          vibrationPattern: [0, 250, 250, 250],
+          lightColor: '#FF231F7C',
+        });
+      }
+
+      // Save token to Firestore
+      if (userId && token) {
+        const userRef = doc(db, "users", userId);
+        await updateDoc(userRef, { 
+          pushToken: token,
+          deviceType: Platform.OS,
+          tokenUpdatedAt: new Date()
+        });
+        console.log("Push token saved to user profile");
+      }
+
+      return token;
+    } catch (error) {
+      console.error("Error setting up notifications:", error);
+      return null;
+    }
+  };
+
+  // Send a welcome notification
+  const sendWelcomeNotification = async () => {
+    try {
+      await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "Welcome back!",
+          body: "You've successfully logged in to your account.",
+          data: { screen: "home" },
+        },
+        trigger: null, // null means show immediately
+      });
+      console.log("Welcome notification sent");
+    } catch (error) {
+      console.error("Error sending notification:", error);
+    }
+  };
+
   const handleLogin = async () => {
     if (loading) return;
     if (!email || !password) {
@@ -72,6 +161,12 @@ const login = () => {
       // Update Firestore User Data
       const userRef = doc(db, "users", user.uid);
       await updateDoc(userRef, { verified: true });
+
+      // Register for push notifications and save token
+      await registerForPushNotificationsAsync(user.uid);
+      
+      // Send welcome notification
+      await sendWelcomeNotification();
 
       // Store UID in AsyncStorage and wait for completion
       await AsyncStorage.setItem("auth", JSON.stringify(user.uid));
