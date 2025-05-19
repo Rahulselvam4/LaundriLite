@@ -105,7 +105,7 @@ const Address = () => {
  
   const sendOrderConfirmationSMS = async (phoneNumber, orderId ,total) => {
     try {
-      const response = await fetch("http://10.16.52.208:5000/send-order-confirmation", {
+      const response = await fetch("http://10.16.146.146:5005/send-order-confirmation", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
